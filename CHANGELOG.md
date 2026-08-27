@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.31.0](https://github.com/santifer/career-ops/compare/career-ops-v1.30.0...career-ops-v1.31.0) (2026-08-27)
+
+
+### Features
+
+* **cv:** add "text" output_format — tailored markdown CV, no PDF ([#3342](https://github.com/santifer/career-ops/issues/3342)) ([13de717](https://github.com/santifer/career-ops/commit/13de7175b176742573f31ca8221fa46acc3a92da))
+* **cv:** ATS-friendliness check — score a generated CV for parseability ([#2064](https://github.com/santifer/career-ops/issues/2064)) ([6d4e4c7](https://github.com/santifer/career-ops/commit/6d4e4c75b1a60a2e907c648e667dea4d4d2b2a9d))
+* external data directory via CAREER_OPS_ROOT ([#524](https://github.com/santifer/career-ops/issues/524)) — lands [#1444](https://github.com/santifer/career-ops/issues/1444) ([9159ec6](https://github.com/santifer/career-ops/commit/9159ec6b34cdd1a3226d03c10d6f34c370175e56))
+* **hired-wall:** a quiet chevron with the exact remainder says the strip continues ([87e3188](https://github.com/santifer/career-ops/commit/87e3188712ff5dda72013bb6ceffd9ca333d5bd7))
+* **hired-wall:** the audit line speaks to the person mid-search ([c74dfc3](https://github.com/santifer/career-ops/commit/c74dfc32a83e1c36aa3e264f887dc97efea6b0be))
+* **hired-wall:** the badge is the title — self-identifying label, own share line, tighter audit line ([7280a48](https://github.com/santifer/career-ops/commit/7280a48731f337563435c756e2ec0754b5115d4c))
+* **portals:** profession-agnostic examples in portals.example.yml ([b8614f8](https://github.com/santifer/career-ops/commit/b8614f802a67bf6e7d2fcc402435c14464e5c005))
+* wire reply-watch into status-log.tsv ([#1582](https://github.com/santifer/career-ops/issues/1582)) ([f88df83](https://github.com/santifer/career-ops/commit/f88df83934503418d77a8cbce4dc5942c5e18bb8))
+
+
+### Bug Fixes
+
+* **hired-share:** suggest outcome.mjs's real syntax in the no-Hired-row error ([4a69583](https://github.com/santifer/career-ops/commit/4a69583146723b5dd753185ae0d0ca029e03534c))
+* **scan:** opt-in word:/stem: anchoring for content_filter keywords ([ce3ac16](https://github.com/santifer/career-ops/commit/ce3ac16bdd2438f5f4eea05ec8f03f8305e7f36c))
+* **verify-pipeline:** recover a report number from a link target written with backslashes ([8177808](https://github.com/santifer/career-ops/commit/81778084cff5341a62026a936ccf616821a524de))
+
 ## [1.30.0](https://github.com/santifer/career-ops/compare/career-ops-v1.29.0...career-ops-v1.30.0) (2026-08-27)
 
 
