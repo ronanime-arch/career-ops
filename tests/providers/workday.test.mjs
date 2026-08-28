@@ -699,6 +699,46 @@ try {
     fail(`workday probe should emit no warning, got: ${JSON.stringify(probeWarnings)}`);
   }
 
+  // One tenant often runs several Workday sites over the same requisitions (its
+  // own careers page plus Indeed/Glassdoor feeds). URL-keyed dedup keeps every
+  // copy: measured 2026-08-13, one requisition filled three of seven results.
+  {
+    const base = 'https://agf.wd3.myworkdayjobs.com';
+    const keys = [
+      `${base}/agf_careers/job/Toronto-ON/Executive-Assistant--CIO---CFO_R11312`,
+      `${base}/indeed_careers/job/Toronto-ON/Executive-Assistant--CIO---CFO_R11312-3`,
+      `${base}/glassdoor_careers/job/Toronto-ON/Executive-Assistant--CIO---CFO_R11312-2`,
+    ].map(url => workday.dedupKey({ url }));
+    if (new Set(keys).size === 1 && keys[0]) pass('dedupKey collapses one requisition across several tenant sites');
+    else fail(`dedupKey keys: ${JSON.stringify(keys)}`);
+  }
+  // Multi-underscore requisitions (R26_05710) must survive intact.
+  {
+    const k = workday.dedupKey({ url: 'https://agecare.wd10.myworkdayjobs.com/agecare_careers_external/job/Brooks-Alberta-Canada/Scheduler--Casual_R26_05710-1' });
+    if (k === 'agecare.wd10.myworkdayjobs.com|Scheduler--Casual_R26_05710') pass('dedupKey keeps a multi-underscore requisition');
+    else fail(`multi-underscore key: ${k}`);
+  }
+  // Different tenants sharing a requisition string must not collide.
+  {
+    const a = workday.dedupKey({ url: 'https://one.wd3.myworkdayjobs.com/careers/job/Toronto/Analyst_R100' });
+    const b = workday.dedupKey({ url: 'https://two.wd3.myworkdayjobs.com/careers/job/Toronto/Analyst_R100' });
+    if (a && b && a !== b) pass('dedupKey is tenant-scoped');
+    else fail(`tenant scoping: ${a} vs ${b}`);
+  }
+  // No requisition in the path: fall back rather than collapse two different
+  // openings that happen to share a title.
+  {
+    const k = workday.dedupKey({ url: 'https://acme.wd3.myworkdayjobs.com/careers/job/Toronto/Warehouse-Supervisor' });
+    if (k === null) pass('dedupKey returns null without a requisition tail');
+    else fail(`expected null, got: ${k}`);
+  }
+  // Non-Workday URLs and junk are not this provider's business.
+  {
+    const bad = [workday.dedupKey({ url: 'https://jobs.lever.co/achievers/abc-123' }), workday.dedupKey({ url: 'not a url' }), workday.dedupKey({})];
+    if (bad.every(k => k === null)) pass('dedupKey returns null for non-Workday and malformed input');
+    else fail(`expected all null, got: ${JSON.stringify(bad)}`);
+  }
+
 } catch (e) {
   fail(`workday provider tests crashed: ${e.message}`);
 }

@@ -147,6 +147,26 @@ export function parseWorkdayResponse(json, entry) {
   return jobs;
 }
 
+// One tenant commonly runs several Workday sites over the same requisitions —
+// its own careers page plus feeds built for Indeed, Glassdoor and the like. The
+// same job then appears once per site under a different URL, with Workday
+// appending a `-2` / `-3` disambiguator, so URL-keyed dedup keeps all of them.
+// Measured 2026-08-13: one requisition (agf R11312) filled three of the seven
+// results in a sweep. Identity is the tenant host plus the requisition, which
+// is the tail of the path segment after the title slug.
+export function workdayDedupKey(url) {
+  let parsed;
+  try { parsed = new URL(url); } catch { return null; }
+  if (!/\.myworkdayjobs\.com$/i.test(parsed.hostname)) return null;
+  const segment = parsed.pathname.split('/').filter(Boolean).pop() || '';
+  // Require a requisition-looking tail (`_R11312`, `_R26_05710`, `_JR100734`):
+  // without one the segment is just a title slug, and two genuinely different
+  // openings with the same title at one tenant would collapse into one.
+  const m = segment.match(/^(.+_[A-Za-z0-9]*\d[A-Za-z0-9_]*)(?:-\d+)?$/);
+  if (!m) return null;
+  return `${parsed.hostname.toLowerCase()}|${m[1]}`;
+}
+
 /** @type {Provider} */
 export default {
   id: 'workday',
@@ -154,6 +174,15 @@ export default {
   detect(entry) {
     const ep = resolveEndpoint(entry);
     return ep ? { url: ep.api } : null;
+  },
+
+  /**
+   * Collapse the same requisition served by several of a tenant's sites.
+   * Returns null when the URL carries no requisition, so the caller falls back
+   * to its normal URL-based key rather than guessing.
+   */
+  dedupKey(job) {
+    return workdayDedupKey(job?.url);
   },
 
   /**
