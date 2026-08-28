@@ -2656,7 +2656,16 @@ async function main() {
           }
         }
 
-        if (!titleFilter(job.title)) {
+        // `skip_title_filter: true` on a target turns the title whitelist off for that
+        // source only. It exists for boards that publish a structured occupation code,
+        // where an exact downstream gate reads that code off the posting and decides.
+        // Filtering those by title first is both redundant and lossy: a title has no
+        // fixed code — `Dispatcher` maps to two different Canadian NOC unit groups
+        // depending on duties — and no whitelist can enumerate every title a code
+        // appears under, so real matches are dropped before the gate can see them.
+        // Leave it off for boards that publish no such code; there the title is all
+        // there is.
+        if (!company.skip_title_filter && !titleFilter(job.title)) {
           totalFilteredTitle++;
           continue;
         }
